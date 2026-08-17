@@ -1,0 +1,8 @@
+name: web-markdown-new
+version: 1.0.0
+description: "Keyless web page extraction via Cloudflare markdown.new — markdown output, no API key. Extract-only backend named 'markdown-new'."
+author: Tsurgcom
+license: MIT
+kind: backend
+provides_web_providers:
+  - markdown-new
