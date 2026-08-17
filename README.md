@@ -33,7 +33,7 @@ For a non-default Hermes home:
 curl -fsSL https://raw.githubusercontent.com/Tsurgcom/hermes-web-markdown-new/main/install-all-profiles.sh | HERMES_HOME=/path/to/.hermes bash
 ```
 
-Preview what the installer would do without changing anything:
+Preview what the installer would do without changing anything. The output will explicitly say `DRY RUN` and end with `no changes were made`:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Tsurgcom/hermes-web-markdown-new/main/install-all-profiles.sh | DRY_RUN=1 bash

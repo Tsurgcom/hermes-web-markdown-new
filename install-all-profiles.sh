@@ -15,6 +15,12 @@ if [[ -d "$profiles_dir" ]]; then
   done
 fi
 
+if [[ "$DRY_RUN" == "1" ]]; then
+  printf '*** DRY RUN: no plugins will be installed, enabled, or configured. ***\n'
+else
+  printf '*** LIVE RUN: plugins will be installed/enabled and profiles configured. ***\n'
+fi
+
 run() {
   if [[ "$DRY_RUN" == "1" ]]; then
     printf '+ '
@@ -33,7 +39,11 @@ for profile in "${profiles[@]}"; do
     plugin_home="$profiles_dir/$profile/plugins/web-markdown-new"
   fi
 
-  printf '\n== %s ==\n' "$profile"
+  if [[ "$DRY_RUN" == "1" ]]; then
+    printf '\n== %s (DRY RUN) ==\n' "$profile"
+  else
+    printf '\n== %s (LIVE) ==\n' "$profile"
+  fi
   if [[ -f "$plugin_home/plugin.yaml" ]]; then
     run hermes "${args[@]}" plugins enable web-markdown-new --no-allow-tool-override
   else
@@ -43,5 +53,10 @@ for profile in "${profiles[@]}"; do
   run hermes "${args[@]}" config set web.extract_backend markdown-new
 done
 
-printf '\nInstalled and enabled web-markdown-new for %d profile(s).\n' "${#profiles[@]}"
-printf 'Start a new Hermes session (or restart the gateway) for the plugin to load.\n'
+if [[ "$DRY_RUN" == "1" ]]; then
+  printf '\n*** DRY RUN COMPLETE: no changes were made. ***\n'
+  printf 'Run the same command without DRY_RUN=1 to apply these changes.\n'
+else
+  printf '\nInstalled and enabled web-markdown-new for %d profile(s).\n' "${#profiles[@]}"
+  printf 'Start a new Hermes session (or restart the gateway) for the plugin to load.\n'
+fi
