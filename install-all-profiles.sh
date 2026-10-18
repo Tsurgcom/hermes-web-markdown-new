@@ -1,18 +1,39 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Install and enable the plugin in the default profile and every named profile.
+# Install and enable the web-markdown-new plugin in the default profile and
+# every named profile.
+#
+# Safe by construction: never runs as root, never pipes anything into a
+# shell, and every command it would run is printed verbatim in --dry-run
+# mode first.
+
+if [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
+  echo "error: refusing to run as root — run this as your normal user." >&2
+  exit 1
+fi
+
+if ! command -v hermes >/dev/null 2>&1; then
+  echo "error: 'hermes' CLI not found on PATH. Install Hermes Agent first:" >&2
+  echo "  https://hermes-agent.nousresearch.com/docs/" >&2
+  exit 1
+fi
+
 REPO="${HERMES_MARKDOWN_NEW_REPO:-Tsurgcom/hermes-web-markdown-new}"
 HERMES_HOME="${HERMES_HOME:-$HOME/.hermes}"
 DRY_RUN="${DRY_RUN:-0}"
 
 profiles=(default)
 profiles_dir="$HERMES_HOME/profiles"
-if [[ -d "$profiles_dir" ]]; then
-  for profile_dir in "$profiles_dir"/*; do
-    [[ -d "$profile_dir" ]] || continue
-    profiles+=("${profile_dir##*/}")
-  done
+shopt -s nullglob
+for profile_dir in "$profiles_dir"/*; do
+  [[ -d "$profile_dir" ]] || continue
+  profiles+=("${profile_dir##*/}")
+done
+shopt -u nullglob
+
+if [[ ! -d "$profiles_dir" ]]; then
+  echo "note: no profiles directory at $profiles_dir — installing to the default profile only."
 fi
 
 if [[ "$DRY_RUN" == "1" ]]; then

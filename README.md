@@ -6,16 +6,41 @@ It gives Hermes agents a keyless `web_extract` path that converts web pages into
 
 ## Install and enable everywhere
 
-Run this **one line**:
+**Recommended** — use Hermes's own plugin manager (no shell scripts piped over the network):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Tsurgcom/hermes-web-markdown-new/main/install-all-profiles.sh | bash
+hermes plugins install Tsurgcom/hermes-web-markdown-new --enable
+hermes config set web.backend ddgs
+hermes config set web.extract_backend markdown-new
 ```
 
-By default, it installs and enables the plugin in:
+For the default profile **plus every named profile** under `~/.hermes/profiles/`, use the bundled installer — but run it *without* piping: download, review, then execute.
 
-- the default Hermes profile; and
-- every profile directory under `~/.hermes/profiles/`.
+```bash
+curl -fsSL -o install-all-profiles.sh \
+  https://raw.githubusercontent.com/Tsurgcom/hermes-web-markdown-new/main/install-all-profiles.sh
+
+# Review what it does first (it is short — ~60 lines):
+less install-all-profiles.sh
+
+# Preview the exact commands without changing anything:
+DRY_RUN=1 bash install-all-profiles.sh
+
+# Apply:
+bash install-all-profiles.sh
+```
+
+> **Note:** there is deliberately no one-liner that pipes a downloaded
+> script straight into a shell in this README. That pattern trips every
+> command-approval gate and security scanner (including Hermes's own
+> smart-approval and plugin security scan); the download-and-review form
+> above is the same install with the risk removed.
+
+The installer refuses to run as root and fails fast if the `hermes` CLI is missing. For a non-default Hermes home:
+
+```bash
+HERMES_HOME=/path/to/.hermes bash install-all-profiles.sh
+```
 
 It also configures:
 
@@ -27,16 +52,12 @@ web:
 
 Start a new Hermes session, or restart each gateway, after installation.
 
-For a non-default Hermes home:
+For one profile only (no script involved):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Tsurgcom/hermes-web-markdown-new/main/install-all-profiles.sh | HERMES_HOME=/path/to/.hermes bash
-```
-
-Preview what the installer would do without changing anything. The output will explicitly say `DRY RUN` and end with `no changes were made`:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/Tsurgcom/hermes-web-markdown-new/main/install-all-profiles.sh | DRY_RUN=1 bash
+hermes -p ariadne plugins install Tsurgcom/hermes-web-markdown-new --enable
+hermes -p ariadne config set web.backend ddgs
+hermes -p ariadne config set web.extract_backend markdown-new
 ```
 
 ## What it provides
@@ -46,7 +67,8 @@ curl -fsSL https://raw.githubusercontent.com/Tsurgcom/hermes-web-markdown-new/ma
 - no API key or account required by this plugin;
 - per-URL error results instead of aborting an entire batch;
 - title/body parsing compatible with the normal Hermes web extraction envelope;
-- explicit handling for HTTP 403 and 429 responses.
+- explicit handling for HTTP 403 and 429 responses, with one bounded retry on transient 429/5xx;
+- strict URL validation, a response size cap, and request timeouts (see `SECURITY.md`).
 
 ## How agents use it
 
@@ -61,19 +83,21 @@ web_extract → fetch and convert URLs through markdown.new
 
 They should not ask the operator to run a shell command, `curl`, or a custom wrapper for ordinary page extraction.
 
-## Manual installation
-
-The one-line installer is recommended. For one profile only:
-
-```bash
-hermes -p ariadne plugins install Tsurgcom/hermes-web-markdown-new --enable
-hermes -p ariadne config set web.backend ddgs
-hermes -p ariadne config set web.extract_backend markdown-new
-```
-
 ## Limitations
 
 `markdown.new` is an external conversion service. It can refuse pages, rate-limit requests, or fail on JavaScript-heavy/private content. The provider returns those failures as structured per-URL errors. Do not treat a failed extraction as evidence that a page does not exist.
+
+## Security
+
+See [`SECURITY.md`](SECURITY.md). Short version: keyless, holds no secrets, never spawns a shell, talks to exactly one HTTPS host, validates every URL, and caps response size and time.
+
+## Tests
+
+```bash
+python -m pytest tests -q
+```
+
+Tests run standalone (a `conftest.py` stubs the Hermes runtime import) and also inside a Hermes checkout.
 
 ## License
 
