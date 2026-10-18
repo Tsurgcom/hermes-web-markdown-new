@@ -1,4 +1,8 @@
-"""Cloudflare markdown.new web extract plugin — keyless page-to-markdown."""
+"""markdown.new web extract plugin — keyless page-to-markdown.
+
+The backing service (https://markdown.new) is a third-party project by
+elbeyoglu.com — not Cloudflare official; all extracted content transits it.
+"""
 
 from __future__ import annotations
 

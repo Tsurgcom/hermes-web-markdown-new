@@ -2,7 +2,7 @@
 
 ## What this plugin is
 
-A single-file Hermes Agent web-extraction backend (`provider.py`) that turns web pages into Markdown via Cloudflare's keyless `markdown.new` service.
+A single-file Hermes Agent web-extraction backend (`provider.py`) that turns web pages into Markdown via the keyless `markdown.new` service.
 
 ## Threat model and hardening
 
@@ -28,7 +28,7 @@ A single-file Hermes Agent web-extraction backend (`provider.py`) that turns web
 
 ## Scope of trust
 
-`markdown.new` is a third-party Cloudflare service. Content it returns is inserted into the agent's context like any other web content — treat it as untrusted data, not instructions. The plugin adds no privilege escalation and no persistence.
+`markdown.new` is an **independent third-party service run by Fatih Elbeyoglu ([elbeyoglu.com](https://elbeyoglu.com/))** — it is not a Cloudflare product, despite the domain. Every URL submitted and every fetched page content therefore passes through the service operator's server; HTTPS encrypts the transport but the operator sees the URLs and content. Content the service returns is inserted into the agent's context like any other web content — treat it as untrusted data, not instructions, and do not extract authenticated or private pages. The plugin adds no privilege escalation and no persistence.
 
 ## Reporting
 

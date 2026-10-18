@@ -1,9 +1,15 @@
-"""Cloudflare markdown.new web extract provider — keyless, local plugin.
+"""markdown.new web extract provider — keyless, local plugin.
 
-Fetches pages through Cloudflare's free page-to-markdown service
+Fetches pages through the free page-to-markdown service
 (https://markdown.new/<url>). No API key required. Returns the same
 ``Title:`` / ``Markdown Content:`` envelope format as Jina Reader, so the
 parsers share shape.
+
+**Not Cloudflare official.** Despite the domain, the service is run by Fatih
+Elbeyoglu (https://elbeyoglu.com/) as an independent project — a third-party
+service, not a Cloudflare product. Privacy warning: every URL sent to
+``extract()`` — and the full fetched page content returned — transits the
+service operator's server. Do not extract authenticated or private pages.
 
 Security posture (see SECURITY.md):
 
@@ -17,8 +23,8 @@ Security posture (see SECURITY.md):
 * per-URL failures are returned as data (never raised), matching the
   legacy web_extract_tool post-processing pipeline.
 
-Extract-only: pair with the ddgs search backend. Registered as backend
-name ``markdown-new`` — set ``web.extract_backend: markdown-new`` in
+Strictly extract-only: pair with the ddgs search backend. Registered as
+backend name ``markdown-new`` — set ``web.extract_backend: markdown-new`` in
 config.yaml.
 """
 
@@ -152,7 +158,7 @@ def _fetch_markdown(url: str) -> str:
 
 
 class MarkdownNewWebSearchProvider(WebSearchProvider):
-    """Extract web page content as markdown via Cloudflare markdown.new."""
+    """Extract web page content as markdown via the third-party markdown.new service."""
 
     @property
     def name(self) -> str:
@@ -160,7 +166,7 @@ class MarkdownNewWebSearchProvider(WebSearchProvider):
 
     @property
     def display_name(self) -> str:
-        return "Cloudflare markdown.new"
+        return "markdown.new (third-party — elbeyoglu.com)"
 
     def is_available(self) -> bool:
         """Keyless — always usable as long as the requests dep is importable."""
@@ -180,8 +186,8 @@ class MarkdownNewWebSearchProvider(WebSearchProvider):
         return {
             "success": False,
             "error": (
-                "markdown-new is an extract-only backend (Cloudflare "
-                "markdown.new). Use the ddgs search backend for web_search."
+                "markdown-new is an extract-only backend (markdown.new). "
+                "Use the ddgs search backend for web_search."
             ),
         }
 
@@ -236,11 +242,14 @@ class MarkdownNewWebSearchProvider(WebSearchProvider):
 
     def get_setup_schema(self) -> Dict[str, Any]:
         return {
-            "name": "Cloudflare markdown.new",
-            "badge": "free · no key · extract",
+            "name": "markdown.new",
+            "badge": "free · no key · extract · third-party",
             "tag": (
-                "Keyless markdown extraction via Cloudflare markdown.new — "
-                "pair with the ddgs search backend. No env vars."
+                "Keyless markdown extraction via markdown.new — pair with the "
+                "ddgs search backend. No env vars. WARNING: independent "
+                "third-party service run by elbeyoglu.com (not Cloudflare "
+                "official) — every extracted URL and page content passes "
+                "through their server."
             ),
             "env_vars": [],
         }

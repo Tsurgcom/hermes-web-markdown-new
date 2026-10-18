@@ -1,6 +1,12 @@
 # Hermes Web Markdown New
 
-A small Hermes Agent web-extraction backend for [Cloudflare `markdown.new`](https://markdown.new/).
+A small Hermes Agent web-extraction backend for [`markdown.new`](https://markdown.new/).
+
+> **⚠️ third-party service.** `markdown.new` is **not Cloudflare official** —
+> despite the domain, it is an independent project run by Fatih Elbeyoglu
+> ([elbeyoglu.com](https://elbeyoglu.com/)). Every URL you extract — and the
+> full fetched page content returned — **passes through their server**. Do
+> not use it for authenticated, private, or sensitive pages.
 
 It gives Hermes agents a keyless `web_extract` path that converts web pages into Markdown while retaining the normal Hermes web-provider response shape.
 
